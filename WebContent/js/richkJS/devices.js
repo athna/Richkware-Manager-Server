@@ -1,21 +1,32 @@
 function loadDevicesTable() {
     console.log("loadDevicesTable")
-    $.get("devicesList", {channel: "webapp"}, function (data) {
+    var user = ""
+    $.get("user", {channel: "webapp"}, function (data) {
         var JSONdata = JSON.parse(data)
-
-        //device = JSON.parse(DeviceJSON);
-        //document.getElementById("Email").innerHTML = Person.email;
-
-        //status : "success", "notmodified", "error", "timeout", or "parsererror"
         if (JSONdata.statusCode == 1000) {
-            var devices = JSONdata.message
-            loadDevicesJSONtoTable(devices)
+
+            var JSONmessage = JSON.parse(JSONdata.message)
+            user = JSONmessage.user
         } else if (JSONdata.statusCode == 2100) {
-            alert("You are not logged in. You are being redirected to the Login Page");
-            window.location.replace = "/Richkware-Manager-Server/login.html";
-        } else {
-            alert(JSONdata.message)
+            user = ""
         }
+        $.get("devicesList", {user: user, channel: "webapp"}, function (data) {
+            var JSONdata = JSON.parse(data)
+
+            //device = JSON.parse(DeviceJSON);
+            //document.getElementById("Email").innerHTML = Person.email;
+
+            //status : "success", "notmodified", "error", "timeout", or "parsererror"
+            if (JSONdata.statusCode == 1000) {
+                var devices = JSONdata.message
+                loadDevicesJSONtoTable(devices)
+            } else if (JSONdata.statusCode == 2100) {
+                alert("You are not logged in. You are being redirected to the Login Page");
+                window.location.replace = "/Richkware-Manager-Server/login.html";
+            } else {
+                alert(JSONdata.message)
+            }
+        })
     })
 }
 
@@ -111,6 +122,23 @@ function deleteDevice(device, indexTableRow) {
     });
 }
 
+function getUser() {
+    var user = ""
+    $.get("user", {channel: "webapp"}, function (data) {
+        console.log(data)
+        var JSONdata = JSON.parse(data)
+        if (JSONdata.statusCode == 1000) {
+
+            var JSONmessage = JSON.parse(JSONdata.message)
+            user = JSONmessage.user
+        } else if (JSONdata.statusCode == 2100) {
+            user = ""
+        }
+        console.log("getUser(): user: " + user)
+        return user;
+    })
+}
+
 /*
 function loadUsersTable() {
     createDevicesTableHeader();
@@ -150,7 +178,7 @@ function newConnection() {
 
 $(document).ready(function() {
     loadDevicesTable();
-    setInterval(loadDevicesTable, 30000);
+    setInterval(loadDevicesTable(), 30000);
 
     $("[id*=remove]").click(function () {
         var dev = event.target.id.split("#")[1];

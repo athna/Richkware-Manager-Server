@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Servlet implementation class DevicesListServlet
@@ -39,14 +40,21 @@ public class devicesList extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         PrintWriter out = response.getWriter();
         try {
-            ServletManager.doDefaultProcessRequest(request);
+            Map<String, String> params = ServletManager.doDefaultProcessRequest(request);
             ServletManager.checkLogin(request);
 
             // server session
             Session session = ServletManager.getServerSession(request);
-            String message = ServletManager.doDefaultProcessResponse(request, GenerateDevicesListJSON(session));
+            String message = "";
+            if (session.getUser().equals(params.get("user"))) {
+                message = ServletManager.doDefaultProcessResponse(request, GenerateDevicesListJSON(session));
+                out.println((new OKResponse(StatusCode.SUCCESS, message)).json());
+            } else {        // passed user and session user are different
+                message = "You are not allowed to perform this operation.";
+                //TODO cambiare codice di errore
+                out.println((new KOResponse(StatusCode.GENERIC_ERROR, message)).json());
+            }
 
-            out.println((new OKResponse(StatusCode.SUCCESS, message)).json());
 
             out.flush();
             out.close();

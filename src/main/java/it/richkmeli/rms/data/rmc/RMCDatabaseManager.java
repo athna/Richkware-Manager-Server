@@ -18,7 +18,6 @@ public class RMCDatabaseManager extends DatabaseManager implements RMCModel {
         schemaName = "AuthSchema";
         tableName = schemaName + "." + "rmc";
         table = "(" +
-                "user VARCHAR(50)," +
                 "rmcId VARCHAR(68) NOT NULL," +
                 "PRIMARY KEY (user, rmcId)," +
                 "FOREIGN KEY (user) REFERENCES auth(email) ON DELETE CASCADE" +
